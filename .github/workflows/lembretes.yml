@@ -1,0 +1,24 @@
+name: Lembretes no celular
+
+on:
+  schedule:
+    - cron: '0 10 * * *'   # 07:00 (Bahia) - agenda do dia
+    - cron: '0 18 * * *'   # 15:00 (Bahia) - pedidos aguardando confirmação
+  workflow_dispatch:       # permite rodar na mão para testar
+
+jobs:
+  lembrete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enviar lembrete
+        run: node lembretes.js ${{ github.event.schedule == '0 18 * * *' && 'pendentes' || 'manha' }}
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
+          LOGIN_SENHA: ${{ secrets.LOGIN_SENHA }}
+          NTFY_TOPIC_PRIVADO: ${{ secrets.NTFY_TOPIC_PRIVADO }}
